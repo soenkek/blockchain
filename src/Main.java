@@ -1,8 +1,15 @@
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
-        Chain chain = new Chain();
+        System.out.print("Enter how many zeros the hash must starts with: ");
+        Scanner scanner = new Scanner(System.in);
+        int numberOfZeros = scanner.nextInt();
+        scanner.close();
+
+        Chain chain = new Chain("./chains/chain");
         for (int i = 0; i < 10; i++) {
-            chain.generateNewBlock();
+            chain.generateNewBlock(numberOfZeros);
         }
         if (!chain.validateChain()) {
             System.out.println("Invalid chain!");
