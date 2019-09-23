@@ -5,17 +5,18 @@ import java.util.Random;
 public class Block implements Serializable {
 
     private int id;
-    private static int lastId = 0;
     private String hash;
     private String hashPrev;
     private long timestamp;
     private int magicNumber;
     private long computationTime;
+    private int minerId;
+    private String nChange;
 
-    public Block(String hashPrev, int numberOfZeros) {
-        this.id = ++lastId;
+    public Block(String hashPrev, int numberOfZeros, int minerId) {
         this.hashPrev = hashPrev;
         this.timestamp = new Date().getTime();
+        this.minerId = minerId;
         calculateHash(numberOfZeros);
     }
 
@@ -31,6 +32,10 @@ public class Block implements Serializable {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getHash() {
@@ -53,7 +58,15 @@ public class Block implements Serializable {
         return computationTime;
     }
 
-    public void setLastId(int id) {
-        lastId = id;
+    public int getMinerId() {
+        return minerId;
+    }
+
+    public String getnChange() {
+        return nChange;
+    }
+
+    public void setnChange(String nChange) {
+        this.nChange = nChange;
     }
 }

@@ -1,22 +1,31 @@
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.print("Enter how many zeros the hash must starts with: ");
-        Scanner scanner = new Scanner(System.in);
-        int numberOfZeros = scanner.nextInt();
-        scanner.close();
-
         Chain chain = new Chain("./chains/chain");
+        List<Miner> miners = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            chain.generateNewBlock(numberOfZeros);
+            Miner miner = new Miner(chain, i);
+            miners.add(miner);
+            miner.start();
+        }
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            System.out.println("Can't sleep :(");
+        }
+        for (Miner miner : miners) {
+            miner.stop();
         }
         if (!chain.validateChain()) {
             System.out.println("Invalid chain!");
             return;
-        }
-        for (int i = 0; i < 5; i++) {
-            chain.printByPosition(i);
+        } else {
+            for (int i = 0; i < 5; i++) {
+                chain.printByPosition(i);
+            }
         }
     }
 }

@@ -6,16 +6,12 @@ public class Chain {
 
     private List<Block> chain;
     private String filePath;
+    private int magicNumber;
 
     public Chain(String filePath) {
+        magicNumber = 0;
         this.filePath = filePath;
         readFile();
-    }
-
-    public void generateNewBlock(int numberOfZeros) {
-        String hashPrev = chain.size() == 0 ? "0" : chain.get(chain.size() - 1).getHash();
-        chain.add(new Block(hashPrev, numberOfZeros));
-        writeFile();
     }
 
     public boolean validateChain() {
@@ -25,6 +21,11 @@ public class Chain {
                 return false;
         }
         return true;
+    }
+
+    public boolean validateBlock(Block block) {
+        if (chain == null) return false;
+        return getLastHash().equals(block.getHashPrev());
     }
 
     public void printAll() {
@@ -44,19 +45,15 @@ public class Chain {
 
     private void printBlock(Block block) {
         System.out.println(
-                "\nBlock:\nId: " +
-                        block.getId() +
-                        "\nTimestamp: " +
-                        block.getTimestamp() +
-                        "\nMagic number: " +
-                        block.getMagicNumber() +
-                        "\nHash of the previous block:\n" +
-                        block.getHashPrev() +
-                        "\nHash of the block:\n" +
-                        block.getHash() +
-                        "\nBlock was generating for " +
-                        block.getComputationTime() +
-                        " seconds"
+                "\nBlock:" +
+                        "\nCreated by miner # " + block.getMinerId() +
+                        "\nId: " + block.getId() +
+                        "\nTimestamp: " + block.getTimestamp() +
+                        "\nMagic number: " + block.getMagicNumber() +
+                        "\nHash of the previous block:\n" + block.getHashPrev() +
+                        "\nHash of the block:\n" + block.getHash() +
+                        "\nBlock was generating for " + block.getComputationTime() + " seconds" +
+                        "\n" + block.getnChange()
         );
     }
 
@@ -67,11 +64,10 @@ public class Chain {
             chain = (List<Block>) inputStream.readObject();
             if (chain != null && chain.size() > 0) {
                 Block lastBlock = chain.get(chain.size() - 1);
-                lastBlock.setLastId(lastBlock.getId());
             }
         } catch (IOException | ClassNotFoundException ignored) {}
         if (!validateChain()) {
-            System.out.println("Invalid chain!");
+//            System.out.println("Creating new chain!");
             chain = new ArrayList<>();
         }
     }
@@ -81,5 +77,29 @@ public class Chain {
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(chain);
         } catch (IOException ignored) {}
+    }
+
+    public String getLastHash() {
+        return chain.size() == 0 ? "0" : chain.get(chain.size() - 1).getHash();
+    }
+
+    public int getNumOfZeros() {return magicNumber;}
+
+    public synchronized void addBlock(Block block) {
+        if (validateBlock(block)) {
+            block.setId(chain.size());
+            if (block.getComputationTime() > 60 && magicNumber > 0) {
+                magicNumber--;
+                block.setnChange("N was decreased to " + magicNumber);
+            }
+            else if (block.getComputationTime() < 30) {
+                magicNumber++;
+                block.setnChange("N was increased to " + magicNumber);
+            } else {
+                block.setnChange("N stays the same");
+            }
+            chain.add(block);
+            writeFile();
+        }
     }
 }
