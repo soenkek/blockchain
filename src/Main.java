@@ -11,7 +11,7 @@ public class Main {
             miner.start();
         }
         try {
-            Thread.sleep(3000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
             System.out.println("Can't sleep :(");
@@ -24,8 +24,9 @@ public class Main {
             return;
         } else {
             for (int i = 0; i < 5; i++) {
-                chain.printByPosition(i);
+//                chain.printByPosition(i);
             }
+            chain.printAll();
         }
     }
 }

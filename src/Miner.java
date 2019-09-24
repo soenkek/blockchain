@@ -11,6 +11,9 @@ public class Miner extends Thread {
     @Override
     public void run() {
         super.run();
-        while (true) chain.addBlock(new Block(chain.getLastHash(), chain.getNumOfZeros(), id));
+        while (true) {
+            if (chain.addBlock(new Block(chain.getLastHash(), chain.getNumOfZeros(), id, chain.getMessages())))
+                chain.sendMessage("Miner#" + id, "I did it!");
+        }
     }
 }

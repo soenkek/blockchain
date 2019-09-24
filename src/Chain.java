@@ -7,6 +7,8 @@ public class Chain {
     private List<Block> chain;
     private String filePath;
     private int magicNumber;
+    private List<String> messages;
+    private List<String> newMessages = new ArrayList<>();
 
     public Chain(String filePath) {
         magicNumber = 0;
@@ -44,6 +46,14 @@ public class Chain {
     }
 
     private void printBlock(Block block) {
+        String messages = "no messages";
+        if (block.getMessages() != null && block.getMessages().size() > 0) {
+            messages = "";
+            for (String msg :
+                    block.getMessages()) {
+                messages = messages.concat("\n" + msg);
+            }
+        }
         System.out.println(
                 "\nBlock:" +
                         "\nCreated by miner # " + block.getMinerId() +
@@ -52,6 +62,7 @@ public class Chain {
                         "\nMagic number: " + block.getMagicNumber() +
                         "\nHash of the previous block:\n" + block.getHashPrev() +
                         "\nHash of the block:\n" + block.getHash() +
+                        "\nBlock data: " + messages +
                         "\nBlock was generating for " + block.getComputationTime() + " seconds" +
                         "\n" + block.getnChange()
         );
@@ -85,8 +96,12 @@ public class Chain {
 
     public int getNumOfZeros() {return magicNumber;}
 
-    public synchronized void addBlock(Block block) {
+    public synchronized boolean addBlock(Block block) {
         if (validateBlock(block)) {
+            synchronized (newMessages) {
+                messages = newMessages;
+                newMessages = new ArrayList<>();
+            }
             block.setId(chain.size());
             if (block.getComputationTime() > 60 && magicNumber > 0) {
                 magicNumber--;
@@ -100,6 +115,16 @@ public class Chain {
             }
             chain.add(block);
             writeFile();
+            return true;
         }
+        return false;
+    }
+
+    public List<String> getMessages() {
+        return messages;
+    }
+
+    public void sendMessage(String sender, String message) {
+        newMessages.add(sender.concat(": " + message));
     }
 }

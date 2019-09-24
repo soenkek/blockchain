@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class Block implements Serializable {
@@ -12,9 +13,11 @@ public class Block implements Serializable {
     private long computationTime;
     private int minerId;
     private String nChange;
+    private List<String> messages;
 
-    public Block(String hashPrev, int numberOfZeros, int minerId) {
+    public Block(String hashPrev, int numberOfZeros, int minerId, List<String> messages) {
         this.hashPrev = hashPrev;
+        this.messages = messages;
         this.timestamp = new Date().getTime();
         this.minerId = minerId;
         calculateHash(numberOfZeros);
@@ -22,9 +25,13 @@ public class Block implements Serializable {
 
     private void calculateHash(int numberOfZeros) {
         long startTime = new Date().getTime();
+        String messageString = "";
+        if (messages != null)
+            for (String msg : messages)
+                messageString = messageString.concat(msg);
         do {
             magicNumber = new Random().nextInt() & Integer.MAX_VALUE;
-            this.hash = StringUtil.applySha256(id + timestamp + hashPrev + magicNumber);
+            this.hash = StringUtil.applySha256(id + timestamp + hashPrev + magicNumber + messageString);
         } while(!hash.startsWith("0".repeat(Math.max(0, numberOfZeros))));
         long endTime = new Date().getTime();
         computationTime = (endTime - startTime) / 1000;
@@ -68,5 +75,9 @@ public class Block implements Serializable {
 
     public void setnChange(String nChange) {
         this.nChange = nChange;
+    }
+
+    public List<String> getMessages() {
+        return messages;
     }
 }
